@@ -1,0 +1,43 @@
+name: Publish main branch using GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v3
+      - name: Setup node
+        id: setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        id: install
+        run: npm ci
+      - name: Build
+        id: build
+        run: npm run build-only -- --base /zugalist/
+      - name: Upload built files as artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
