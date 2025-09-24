@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         id: install
         run: npm ci
+      - name: Build game list
+        id: buildGames
+        run: node scripts/updateGames.mjs
       - name: Build
         id: build
         run: npm run build-only -- --base /zugalist/

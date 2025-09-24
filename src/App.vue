@@ -1,8 +1,12 @@
 <template>
   <div class="mx-auto w-full max-w-screen-lg relative p-4">
-    <div class="text-center">Work in progress...</div>
+    <div>{{ allGames }}</div>
   </div>
 </template>
+
+<script setup lang="ts">
+import allGames from "./games.json"
+</script>
 
 <style>
 body {
