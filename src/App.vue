@@ -38,7 +38,7 @@
         </option>
       </select>
     </div>
-    <div class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div v-if="gamesState === 'ready'" class="my-8 grid grid-cols-1 md:grid-cols-2 gap-4">
       <TransitionGroup
         leave-active-class="absolute"
         enter-from-class="opacity-0"
@@ -54,6 +54,18 @@
         />
       </TransitionGroup>
     </div>
+    <div
+      v-else-if="gamesState === 'fetching'"
+      class="my-8 px-4 py-1 rounded-full bg-yellow-400 text-black"
+    >
+      Caricamento lista giochi...
+    </div>
+    <div
+      v-else-if="gamesState === 'error'"
+      class="my-8 px-4 py-1 rounded-full bg-red-600 text-white"
+    >
+      Errore nel caricamento della lista giochi
+    </div>
     <div class="text-blue-100 text-center text-sm italic [&_a]:underline">
       Dati da <a href="https://boardgamegeek.com/" target="_blank">BoardGameGeek</a> &bullet;
       <a href="https://github.com/rrobby86/zugalist/issues" target="_blank"
@@ -66,9 +78,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import allGames from "./games.json"
+import { computed, onMounted, ref } from "vue"
 import GameTile from "./GameTile.vue"
+
+const gamesState = ref<string>()
+const allGames = ref<any[]>([])
+
+onMounted(async () => {
+  gamesState.value = "fetching"
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}data/games.json`)
+    allGames.value = await res.json()
+    gamesState.value = "ready"
+  } catch (ex) {
+    gamesState.value = "error"
+    throw ex
+  }
+})
 
 const durationOptions = [15, 30, 45, 60, 90, 120, 150, 180]
 
@@ -78,7 +104,7 @@ const durationMin = ref<number | null>(null)
 const durationMax = ref<number | null>(null)
 
 const games = computed(() => {
-  let selected = allGames
+  let selected = allGames.value
   if (players.value !== null) {
     selected = selected.filter(
       (game) =>

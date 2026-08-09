@@ -2,6 +2,7 @@ import { writeFileSync } from "fs"
 import { parseStringPromise } from "xml2js"
 
 const fixes = {
+  205059: { name: "Le Case della Follia: seconda edizione" },
   386831: { name: "Maialini salterini" },
   2136: { name: "Non t'arrabbiare" },
   258779: { name: "Pianeti Sconosciuti" },
@@ -17,9 +18,9 @@ const fixes = {
 const listUrl = "https://boardgamegeek.com/xmlapi/geeklist/314361"
 const numPlayersPollMap = { Best: "best", Recommended: "rec", "Not Recommended": "notrec" }
 
-async function fetchXmlData(url) {
+async function fetchXmlData(url, apiKey) {
   console.log(`fetching ${url}`)
-  const resp = await fetch(url)
+  const resp = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } })
   const rawText = await resp.text()
   const data = await parseStringPromise(rawText)
   return data
@@ -67,13 +68,13 @@ function extractGameData(node) {
   return data
 }
 
-async function fetchAllGamesData(ids) {
+async function fetchAllGamesData(ids, apiKey) {
   const data = []
   const idsQueue = [...ids]
   while (idsQueue.length) {
     const batchIds = idsQueue.splice(0, 20).join(",")
     const batchDataUrl = `https://boardgamegeek.com/xmlapi2/thing?id=${batchIds}&stats=1`
-    const batchData = await fetchXmlData(batchDataUrl)
+    const batchData = await fetchXmlData(batchDataUrl, apiKey)
     for (const node of batchData.items.item) {
       const gameData = extractGameData(node)
       data.push(gameData)
@@ -102,8 +103,9 @@ function postprocessGameData(data) {
   return processed
 }
 
-const listData = await fetchXmlData(listUrl)
+const apiKey = process.env.BGG_API_KEY
+const listData = await fetchXmlData(listUrl, apiKey)
 const gameIds = extractGameIds(listData)
-const data = await fetchAllGamesData(gameIds)
+const data = await fetchAllGamesData(gameIds, apiKey)
 const processed = postprocessGameData(data)
-await writeFileSync("src/games.json", JSON.stringify(processed))
+await writeFileSync("public/data/games.json", JSON.stringify(processed))

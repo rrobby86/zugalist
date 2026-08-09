@@ -1,0 +1,3 @@
+# ensure this directory exists, but do not track any file in it
+*
+!.gitignore
