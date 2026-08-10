@@ -66,8 +66,12 @@
     >
       Errore nel caricamento della lista giochi
     </div>
+    <div class="mb-4 flex justify-center">
+      <a href="https://boardgamegeek.com/" target="_blank"
+        ><img src="./powered-by-bgg-reversed-rgb.svg" class="w-40 md:w-48"
+      /></a>
+    </div>
     <div class="text-blue-100 text-center text-sm italic [&_a]:underline">
-      Dati da <a href="https://boardgamegeek.com/" target="_blank">BoardGameGeek</a> &bullet;
       <a href="https://github.com/rrobby86/zugalist/issues" target="_blank"
         >Segnalazioni e suggerimenti</a
       >
